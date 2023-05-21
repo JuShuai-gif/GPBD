@@ -9,9 +9,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 else()
 	include_directories(${PROJECT_SOURCE_DIR})
 endif()
-
+# 设置cmake模块位置 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMKAE_MODULE_PATH})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# 将设置属性包含进来
+include(${PROJECT_PATH}/cmake/Common.cmake)
 
 if (NOT WIN32)
         message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
@@ -23,10 +26,80 @@ else()
 	set(ExternalInstallDir "${PROJECT_BINARY_DIR}" CACHE INTERNAL "External install directory")	
 endif()	
 
+include(ExternalProject)
 
-# Eigen3配置
+#find_package(Eigen3 REQUIRED)
+set(EIGEN3_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/extern/eigen)
+
+set(EXT_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+if(NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+	set(EXT_CMAKE_BUILD_TYPE "Release")
+endif()
+
+## Discregrid
+if ((DEFINED Discregrid_INCLUDE_DIR) AND (DEFINED Discregrid_DEBUG_LIB) AND (DEFINED Discregrid_LIB))
+	message(STATUS "Using ${Discregrid_INCLUDE_DIR}")
+	set(Discregrid_LIBRARIES optimized ${Discregrid_LIB} debug ${Discregrid_DEBUG_LIB})
+else()
+	ExternalProject_Add(
+	   Ext_Discregrid
+	   PREFIX "${CMAKE_BINARY_DIR}/extern/Discregrid"
+	   GIT_REPOSITORY git@github.com:InteractiveComputerGraphics/Discregrid.git
+	   GIT_TAG "4c27e1cc88be828c6ac5b8a05759ac7e01cf79e9"
+	   INSTALL_DIR ${ExternalInstallDir}/Discregrid
+	   CMAKE_ARGS -DCMAKE_BUILD_TYPE:STRING=${EXT_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${ExternalInstallDir}/Discregrid
+	   -DBUILD_CMD_EXECUTABLE:BOOL=0 -DEIGEN3_INCLUDE_DIR:PATH=${EIGEN3_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+	) 
+	ExternalProject_Get_Property(Ext_Discregrid INSTALL_DIR)
+	set(Discregrid_INCLUDE_DIR ${INSTALL_DIR}/include)
+	set(Discregrid_LIBRARIES optimized ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}Discregrid${CMAKE_STATIC_LIBRARY_SUFFIX} 
+							 debug ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}Discregrid_d${CMAKE_STATIC_LIBRARY_SUFFIX})
+	unset(INSTALL_DIR)
+	message(STATUS "Building ${Discregrid_INCLUDE_DIR}")
+endif()
+
+# GenericParameters
+if (DEFINED GenericParameters_INCLUDE_DIR)
+	message(STATUS "Using ${GenericParameters_INCLUDE_DIR}")
+else()
+	## GenericParameters
+	ExternalProject_Add(
+	   Ext_GenericParameters
+	   PREFIX "${ExternalInstallDir}/GenericParameters"
+	   GIT_REPOSITORY git@github.com:InteractiveComputerGraphics/GenericParameters.git
+	   GIT_TAG "50b87678b19221eb7cb12a75fd1f5fa0a3cc0fc6"
+	   INSTALL_DIR ${ExternalInstallDir}/GenericParameters
+	   CMAKE_ARGS -DCMAKE_BUILD_TYPE=${EXT_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${ExternalInstallDir}/GenericParameters -DGENERICPARAMETERS_NO_TESTS:BOOL=1		
+	) 
+	ExternalProject_Get_Property(Ext_GenericParameters INSTALL_DIR)
+	set(GenericParameters_INCLUDE_DIR ${INSTALL_DIR}/include)
+	unset(INSTALL_DIR)
+endif()
 
 #增加一个子项目
 add_subdirectory(src)
 
+# 如果只想生成lib文件，就定义这个变量
+if(NOT PBD_LIBS_ONLY)
+    include(DataCopyTargets)
+    add_subdirectory(extern/glfw)
+    add_subdirectory(extern/imgui)
+    add_subdirectory(extern/md5)
+    if (USE_PYTHON_BINDINGS)
+        add_subdirectory(extern/pybind)
+    endif ()   
+endif()
 
+# CMake 中用于安装文件的指令，其中 install 指令可以将构建完成的文件安装到指定位置中
+# 将当前目录下名为 Common 的文件夹中所有扩展名为 .h 的头文件复制到安装目录的 include 文件夹下
+install(DIRECTORY ./Common
+DESTINATION include
+FILES_MATCHING PATTERN "*.h")
+
+install(DIRECTORY ./data
+DESTINATION include
+FILES_MATCHING PATTERN "*.glsl")
+
+install(DIRECTORY ./Demos/Visualization
+DESTINATION include
+FILES_MATCHING PATTERN "*.h")

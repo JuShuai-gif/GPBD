@@ -28,12 +28,12 @@ namespace Utils{
             m_minLevel = level;
         }
     };
-
+    // 输出
     class ConsoleSink:public LogSink{
     public:
         ConsoleSink(const LogLevel minLevel):LogSink(minLevel){}
 
-        virtual void Write(const LogLevel level,const std::string& str){
+        virtual void write(const LogLevel level,const std::string& str){
             if (level < m_minLevel)
                 return;
             if (level == LogLevel::WARN)
@@ -44,7 +44,7 @@ namespace Utils{
             std::cout << str << std::endl;
         }
     };
-
+    // 文件
     class FileSink:public LogSink{
     protected:
         std::ofstream m_file;
@@ -93,7 +93,7 @@ namespace Utils{
             m_file.flush();
         }
     };
-
+    // 缓冲
     class BufferSink:public Utils::LogSink
     {
     protected:
@@ -133,6 +133,7 @@ namespace Utils{
             m_sinks.clear();
         }
     protected:
+        // 创建一个数组用来存放Log 指针
         std::vector<std::shared_ptr<LogSink>> m_sinks;
         bool m_active;
     

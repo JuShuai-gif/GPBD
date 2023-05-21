@@ -7,6 +7,9 @@ namespace Utils{
     {
     public:
         // 根据给定词进行划分
+        // str 要进行切分的字符串
+        // tokens 存储切分结果
+        // delimiters 分割符
         static void tokenize(const std::string& str,std::vector<std::string>& tokens,const std::string& delimiters = " "){
             std::string::size_type lastPos = str.find_first_not_of(delimiters,0);
             std::string::size_type pos = str.find_first_of(delimiters,lastPos);

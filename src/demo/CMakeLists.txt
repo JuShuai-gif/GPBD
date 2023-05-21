@@ -1,5 +1,6 @@
 set(PBD_DEMOS
     BarDemo
+	test
 )
 
 if (NOT PBD_LIBS_ONLY)

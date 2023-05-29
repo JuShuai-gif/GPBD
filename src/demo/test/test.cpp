@@ -3,6 +3,8 @@
 #include "StringTools.h"
 #include "Timing.h"
 #include "FileSystem.h"
+#include "AABB.h"
+#include "kdTree.h"
 INIT_LOGGING
 INIT_TIMING
 
@@ -49,7 +51,7 @@ int main(){
 
     STOP_TIMING_AVG_PRINT
     Utils::Timing::printAverageTimes();
-
+/*
     std::string filePath = "E:\\Project\\GPBD\\test.txt";
     std::string fileDir = "E:\\Project\\GPBD";
     std::string filter = "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
@@ -74,7 +76,38 @@ int main(){
 
     std::string dir = Utils::FileSystem::fileDialog(0,fileDir,filter);
     std::cout << dir << std::endl;
-    system("pause");
+*/
+    PBD::AABB aabb1;
+    Vector3r v00(1.0f,2.0f,3.0f);
+    Vector3r v01(2.0f,3.0f,4.0f);
+    aabb1.m_p[0] = v00;
+    aabb1.m_p[1] = v01;
+
+
+    PBD::AABB aabb2;
+    Vector3r v10(1.5f,2.5f,3.5f);
+    Vector3r v11(3.0f,3.0f,5.0f);
+    std::cout << "v10  " << v10 << std::endl;
+    std::cout << "v11  " << v11 << std::endl;
+    aabb2.m_p[0] = v10;
+    aabb2.m_p[1] = v11;
+
+    if (PBD::AABB::pointInAABB(aabb1,Vector3r(1.5f,1.5f,1.5f)))
+        std::cout << "in inter" << std::endl;
+    else
+        std::cout << "no in inter" << std::endl;
+    
+    if (PBD::AABB::interSection(aabb1,aabb2))
+        std::cout << "intersection" << std::endl;
+    
+    PBD::AABB::getEdge(aabb1,'2',v00,v01);
+    std::cout << "v0" << v00 << std::endl;
+    std::cout << "v1" << v01 << std::endl;
+    
+
+    PBD::kdTree kd;
+    
+    //system("pause");
     return 0;
 
 }

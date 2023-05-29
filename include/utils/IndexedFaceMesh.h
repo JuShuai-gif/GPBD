@@ -42,7 +42,8 @@ namespace Utils{
     
     public:
         IndexedFaceMesh();
-        IndexedFaceMesh(IndexedFaceMesh& other);
+        ~IndexedFaceMesh();
+        IndexedFaceMesh(IndexedFaceMesh const& other);
         IndexedFaceMesh& operator=(IndexedFaceMesh const& other);
 
         void release();
@@ -57,7 +58,7 @@ namespace Utils{
         void addFace(const unsigned int* const indices);
         void addFace(const int* const indices);
         void addUV(const Real u,const Real v);
-        void addUNIndex(const unsigned int index);
+        void addUVIndex(const unsigned int index);
 
         const Faces& getFaces()const{
             return m_indices;
@@ -127,10 +128,11 @@ namespace Utils{
         {
             for (int i = 0; i < (int)numFaces(); ++i)
             {
+                // 从一个面中获取三个顶点
 				const Vector3r &a = pd.getPosition(m_indices[m_verticesPerFace*i] + offset);
 				const Vector3r &b = pd.getPosition(m_indices[m_verticesPerFace*i + 1] + offset);
 				const Vector3r &c = pd.getPosition(m_indices[m_verticesPerFace*i + 2] + offset);
-
+                // 
                 Vector3r v1 = b - a;
                 Vector3r v2 = c - a;
 
@@ -148,12 +150,12 @@ namespace Utils{
     void IndexedFaceMesh::updateVertexNormals(const PositionData& pd)
     {
         m_vertexNormals.resize(numVertices());
-
+        // 全部法线都设置为0
         for (unsigned int i = 0;i < numVertices(); ++i)
         {
             m_vertexNormals[i].setZero();
         }
-
+        // 设置每个面的法线
         for (unsigned int i = 0u; i < numFaces(); ++i)
         {
             const Vector3r& n = m_normals[i];
@@ -161,12 +163,11 @@ namespace Utils{
 			m_vertexNormals[m_indices[m_verticesPerFace*i + 1]] += n;
 			m_vertexNormals[m_indices[m_verticesPerFace*i + 2]] += n;
         }
-        for (unsigned int i = 0; i < numVertices(); i++)
+        // 每个顶点的法线
+        for (unsigned int i = 0; i < numVertices(); ++i)
 		{
 			m_vertexNormals[i].normalize();
 		}
         
     }
-    
-
 }

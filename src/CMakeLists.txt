@@ -1,4 +1,4 @@
-#add_subdirectory(Simulation)
+add_subdirectory(Simulation)
 add_subdirectory(utils)
 #add_subdirectory(PBD)
 

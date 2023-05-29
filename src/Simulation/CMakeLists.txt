@@ -32,6 +32,7 @@ target_include_directories(Simulation
     PUBLIC
         ${PROJECT_SOURCE_DIR}/extern/eigen
         ${PROJECT_SOURCE_DIR}/include/Simulation
+        ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_SOURCE_DIR}/extern
         ${PROJECT_SOURCE_DIR}/Common
 )

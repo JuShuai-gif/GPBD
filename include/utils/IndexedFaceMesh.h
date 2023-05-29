@@ -45,7 +45,8 @@ namespace Utils{
         ~IndexedFaceMesh();
         IndexedFaceMesh(IndexedFaceMesh const& other);
         IndexedFaceMesh& operator=(IndexedFaceMesh const& other);
-
+        
+        // 清除
         void release();
         bool isClosed()const;
         bool getFlatShading()const{

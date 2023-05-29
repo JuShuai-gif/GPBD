@@ -36,6 +36,7 @@ using Vector2i = Eigen::Matrix<int, 2, 1, Eigen::DontAlign>;
 using AlignedBox2r = Eigen::AlignedBox<Real, 2>;
 using AlignedBox3r = Eigen::AlignedBox<Real, 3>;
 using AngleAxisr = Eigen::AngleAxis<Real>;
+// 四元数
 using Quaternionr = Eigen::Quaternion<Real, Eigen::DontAlign>;
 
 #if defined(WIN32) || defined(_WIN32) || defined(WIN64)
